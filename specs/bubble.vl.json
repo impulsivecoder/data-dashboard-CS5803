@@ -1,0 +1,103 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "Market segment quadrant matrix. Five layers stacked on the same axes: bubbles, segment labels, vertical reference rule, horizontal reference rule, and four corner annotation boxes.",
+  "title": {
+    "text": "Market Segment Size, profitability by cancellation risk matrix",
+    "fontSize": 14,
+    "anchor": "start"
+  },
+  "width": 520,
+  "height": 540,
+  "data": {"url": "data/segment_matrix.csv"},
+
+  "layer": [
+    {
+      "description": "LAYER 1 - the bubbles themselves.",
+      "mark": {"type": "circle", "opacity": 0.75, "stroke": null},
+      "encoding": {
+        "x": {
+          "field": "cancellation_rate", "type": "quantitative",
+          "scale": {"domain": [0, 100]},
+          "axis": {"title": "Cancellation Rate %", "values": [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]}
+        },
+        "y": {
+          "field": "avg_adr", "type": "quantitative",
+          "scale": {"domain": [0, 140]},
+          "axis": {"title": "Avg. ADR"}
+        },
+        "size": {
+          "field": "bookings", "type": "quantitative",
+          "scale": {"range": [80, 4500]},
+          "legend": null
+        },
+        "color": {
+          "field": "hotel", "type": "nominal",
+          "scale": {
+            "domain": ["City Hotel", "Resort Hotel"],
+            "range": ["#4E79A7", "#E15759"]
+          },
+          "legend": null
+        },
+        "tooltip": [
+          {"field": "hotel", "title": "Hotel"},
+          {"field": "market_segment", "title": "Segment"},
+          {"field": "cancellation_rate", "title": "Cancel %", "format": ".2f"},
+          {"field": "avg_adr", "title": "Avg ADR", "format": ".2f"},
+          {"field": "bookings", "title": "Bookings", "format": ","}
+        ]
+      }
+    },
+    {
+      "description": "LAYER 2 - text label for each bubble (segment name).",
+      "mark": {"type": "text", "dy": 22, "fontSize": 11, "fontWeight": 500},
+      "encoding": {
+        "x": {"field": "cancellation_rate", "type": "quantitative"},
+        "y": {"field": "avg_adr", "type": "quantitative"},
+        "text": {"field": "market_segment"},
+        "color": {
+          "field": "hotel", "type": "nominal",
+          "scale": {"domain": ["City Hotel", "Resort Hotel"], "range": ["#4E79A7", "#E15759"]},
+          "legend": null
+        }
+      }
+    },
+    {
+      "description": "LAYER 3 - vertical reference rule at x=30 (the cancellation threshold from the [Risk Quadrant] calc field).",
+      "data": {"values": [{"x": 30}]},
+      "mark": {"type": "rule", "strokeDash": [6, 4], "color": "#888"},
+      "encoding": {"x": {"field": "x", "type": "quantitative"}}
+    },
+    {
+      "description": "LAYER 4 - horizontal reference rule at the average of all segment-level avg ADRs. The aggregate transform computes this on the fly.",
+      "transform": [
+        {"aggregate": [{"op": "mean", "field": "avg_adr", "as": "mean_adr"}]}
+      ],
+      "mark": {"type": "rule", "strokeDash": [6, 4], "color": "#888"},
+      "encoding": {"y": {"field": "mean_adr", "type": "quantitative"}}
+    },
+    {
+      "description": "LAYER 5 - four corner annotation boxes labelling each quadrant. Inline data, multiline text via lineBreak.",
+      "data": {
+        "values": [
+          {"x": 5,  "y": 132, "label": "High Value\nLow Cancellation Risk"},
+          {"x": 70, "y": 132, "label": "High Value\nHigh Cancellation Risk"},
+          {"x": 5,  "y": 12,  "label": "Low Value\nLow Cancellation Risk"},
+          {"x": 70, "y": 12,  "label": "Low Value\nHigh Cancellation Risk"}
+        ]
+      },
+      "mark": {
+        "type": "text", "fontSize": 10, "color": "#777",
+        "align": "left", "lineBreak": "\n"
+      },
+      "encoding": {
+        "x": {"field": "x", "type": "quantitative"},
+        "y": {"field": "y", "type": "quantitative"},
+        "text": {"field": "label"}
+      }
+    }
+  ],
+  "config": {
+    "view": {"stroke": "#ddd"},
+    "axis": {"grid": true, "gridColor": "#f0f0f0", "domain": false}
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "Cancellation rate by lead-time band, grouped by hotel.",
+  "title": {
+    "text": "Cancellation Rate By Advance Booking Window",
+    "fontSize": 14,
+    "anchor": "start"
+  },
+  "width": 560,
+  "height": 280,
+  "data": {"url": "data/cancel_by_lead.csv"},
+
+  "encoding": {
+    "x": {
+      "field": "lead_band", "type": "nominal",
+      "sort": ["0-90 days", "90-180 days", "180-270 days", "270-365 days", "365+ days"],
+      "axis": {"title": "Lead time band", "labelAngle": 0}
+    },
+    "xOffset": {
+      "field": "hotel", "type": "nominal",
+      "sort": ["City Hotel", "Resort Hotel"]
+    },
+    "y": {
+      "field": "cancellation_rate", "type": "quantitative",
+      "scale": {"domain": [0, 100]},
+      "axis": {"title": "Cancellation Rate %", "format": ".0f"}
+    },
+    "color": {
+      "field": "hotel", "type": "nominal",
+      "scale": {"domain": ["City Hotel", "Resort Hotel"], "range": ["#4E79A7", "#E15759"]},
+      "legend": {"orient": "bottom", "title": "Hotel"}
+    }
+  },
+
+  "layer": [
+    {
+      "description": "LAYER 1 - the bars themselves.",
+      "mark": {"type": "bar"},
+      "encoding": {
+        "tooltip": [
+          {"field": "hotel"},
+          {"field": "lead_band", "title": "Band"},
+          {"field": "cancellation_rate", "title": "Cancel %", "format": ".2f"},
+          {"field": "bookings", "title": "Bookings", "format": ","}
+        ]
+      }
+    },
+    {
+      "description": "LAYER 2 - data labels above each bar.",
+      "mark": {
+        "type": "text", "dy": -6, "fontSize": 11,
+        "fontWeight": 500
+      },
+      "encoding": {
+        "text": {"field": "cancellation_rate", "format": ".2f"}
+      }
+    }
+  ],
+  "config": {
+    "view": {"stroke": null},
+    "axis": {"grid": true, "gridColor": "#f0f0f0", "domain": false}
+  }
+}

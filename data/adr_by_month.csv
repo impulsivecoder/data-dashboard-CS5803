@@ -1,0 +1,25 @@
+hotel,arrival_date_month,avg_adr,month_num
+City Hotel,January,83.53366441136671,1
+City Hotel,February,85.67223686878928,2
+City Hotel,March,93.24707332293292,3
+City Hotel,April,111.7886552928533,4
+City Hotel,May,122.36693510937309,5
+City Hotel,June,119.8180815806246,6
+City Hotel,July,111.17897206703911,7
+City Hotel,August,115.38357190860215,8
+City Hotel,September,110.67358046524282,9
+City Hotel,October,100.56918783068784,10
+City Hotel,November,88.96375550916261,11
+City Hotel,December,90.10770930518046,12
+Resort Hotel,January,49.825406522737715,1
+Resort Hotel,February,55.440356564019446,2
+Resort Hotel,March,57.80874058451341,3
+Resort Hotel,April,78.27677068821399,4
+Resort Hotel,May,79.10739486311036,5
+Resort Hotel,June,110.8764457632707,6
+Resort Hotel,July,155.56046700285026,7
+Resort Hotel,August,186.98119656371446,8
+Resort Hotel,September,93.37220038659794,9
+Resort Hotel,October,62.51561314075333,10
+Resort Hotel,November,48.68603648424544,11
+Resort Hotel,December,69.78000382262996,12

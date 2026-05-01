@@ -1,0 +1,108 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "ADR by month for City vs Resort hotel. Target line and conditional month labels are driven by the targetADR param, which is updated externally from an HTML input.",
+  "title": {
+    "text": "Average Daily Rate by Month - City Vs Resort hotel",
+    "fontSize": 14,
+    "anchor": "start"
+  },
+  "width": 560,
+  "height": 250,
+  "data": {"url": "data/adr_by_month.csv"},
+
+  "params": [
+    {
+      "name": "targetADR",
+      "value": 115,
+      "description": "Target average daily rate in euros. Mirrors the [Target_115ADR] parameter from the original Tableau workbook."
+    }
+  ],
+
+  "transform": [
+    {
+      "calculate": "'Month: ' + datum.arrival_date_month + '\\nAvg ADR: ' + format(datum.avg_adr, '.2f')",
+      "as": "label"
+    }
+  ],
+
+  "encoding": {
+    "x": {
+      "field": "month_num", "type": "ordinal",
+      "axis": {
+        "title": "Arrival Date Month",
+        "labelExpr": "['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'][datum.value - 1]"
+      }
+    },
+    "color": {
+      "field": "hotel", "type": "nominal",
+      "scale": {"domain": ["City Hotel", "Resort Hotel"], "range": ["#4E79A7", "#E15759"]},
+      "legend": null
+    }
+  },
+
+  "layer": [
+    {
+      "description": "LAYER 1 - the line itself.",
+      "mark": {"type": "line", "strokeWidth": 2.5},
+      "encoding": {
+        "y": {
+          "field": "avg_adr", "type": "quantitative",
+          "axis": {"title": "Avg Nightly Rate (Euros)"}
+        },
+        "tooltip": [
+          {"field": "hotel"},
+          {"field": "arrival_date_month", "title": "Month"},
+          {"field": "avg_adr", "title": "Avg ADR", "format": ".2f"}
+        ]
+      }
+    },
+    {
+      "description": "LAYER 2 - data points on each month.",
+      "mark": {"type": "circle", "size": 60},
+      "encoding": {
+        "y": {"field": "avg_adr", "type": "quantitative"}
+      }
+    },
+    {
+      "description": "LAYER 3 - conditional labels. The filter expression references targetADR, so the label set updates whenever the param changes. Mirrors the [Above Selected target] Tableau calc field.",
+      "transform": [{"filter": "datum.avg_adr >= targetADR"}],
+      "mark": {
+        "type": "text", "dy": -22, "fontSize": 10,
+        "lineBreak": "\n", "fontWeight": 500
+      },
+      "encoding": {
+        "y": {"field": "avg_adr", "type": "quantitative"},
+        "text": {"field": "label"}
+      }
+    },
+    {
+      "description": "LAYER 4 - the horizontal target line, driven by the param. Uses its own one-row dataset to avoid inheriting `x`/`color` from the top-level encoding (which would otherwise draw one rule per data point).",
+      "data": {"values": [{}]},
+      "mark": {"type": "rule", "color": "#666", "strokeWidth": 1.5},
+      "encoding": {
+        "x": null,
+        "color": null,
+        "y": {"datum": {"expr": "targetADR"}, "type": "quantitative"}
+      }
+    },
+    {
+      "description": "LAYER 5 - text label for the target line, anchored to the left axis above the rule.",
+      "data": {"values": [{}]},
+      "mark": {
+        "type": "text", "align": "left", "baseline": "bottom",
+        "dx": 4, "dy": -4, "fontSize": 10, "color": "#666",
+        "fontWeight": 500
+      },
+      "encoding": {
+        "x": null,
+        "color": null,
+        "y": {"datum": {"expr": "targetADR"}, "type": "quantitative"},
+        "text": {"value": {"expr": "'Target_' + targetADR + 'ADR'"}}
+      }
+    }
+  ],
+  "config": {
+    "view": {"stroke": null},
+    "axis": {"grid": true, "gridColor": "#f0f0f0", "domain": false}
+  }
+}

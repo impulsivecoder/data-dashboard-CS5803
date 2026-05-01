@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Hotel Bookings Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Vega-Lite stack from CDN. Order matters: Vega, then Vega-Lite, then Vega-Embed. -->
+  <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+
+  <style>
+    body {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      margin: 0; padding: 16px 24px;
+      background: #fff; color: #222;
+    }
+    h1 {
+      font-size: 22px; font-weight: 600;
+      margin: 4px 0 16px 0;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(540px, 1fr) minmax(580px, 1fr);
+      gap: 16px;
+      align-items: start;
+    }
+    .right-col { display: flex; flex-direction: column; gap: 16px; }
+    .target-card {
+      margin-top: 16px; padding: 12px 16px;
+      background: #fafafa; border: 1px solid #eee;
+      border-radius: 6px; max-width: 380px;
+      font-size: 13px; color: #444;
+    }
+    .target-card label { font-weight: 500; display: block; margin-bottom: 6px; }
+    .target-card input {
+      width: 80px; padding: 4px 8px;
+      border: 1px solid #ccc; border-radius: 4px;
+      font-size: 14px;
+    }
+    .target-card .hint { color: #888; font-size: 12px; margin-top: 6px; }
+    /* Hide vega-embed's default action button to keep the dashboard clean */
+    .vega-embed details, .vega-embed summary { display: none; }
+  </style>
+</head>
+<body>
+  <h1>Hotel Bookings Dashboard</h1>
+
+  <div class="grid">
+    <div id="bubble"></div>
+    <div class="right-col">
+      <div id="line"></div>
+      <div id="bars"></div>
+    </div>
+  </div>
+
+  <div class="target-card">
+    <label for="targetInput">Target ADR (Euros)</label>
+    <input id="targetInput" type="number" value="115" min="0" max="400" step="1">
+    <div class="hint">Drives the line chart's reference line and the conditional month labels.</div>
+  </div>
+
+  <script>
+    /*
+     * Three vega-embed calls, one per chart. Each returns a promise that
+     * resolves with { view, spec, ... } - we keep the line chart's `view`
+     * around so we can push new param values to it from the HTML input.
+     */
+    const embedOpts = { actions: false, renderer: 'svg' };
+
+    let lineView = null;
+
+    Promise.all([
+      vegaEmbed('#bubble', 'specs/bubble.vl.json', embedOpts),
+      vegaEmbed('#line',   'specs/line.vl.json',   embedOpts),
+      vegaEmbed('#bars',   'specs/bars.vl.json',   embedOpts),
+    ]).then(([bubble, line, bars]) => {
+      lineView = line.view;
+    }).catch(err => {
+      console.error('Vega-Embed error:', err);
+      document.body.insertAdjacentHTML(
+        'beforeend',
+        '<div style="color:#c00;padding:12px">Failed to load a chart spec. Check the browser console.</div>'
+      );
+    });
+
+    // Wire the HTML input to the line chart's targetADR param.
+    // signal() updates the param; runAsync() re-renders only the affected layers.
+    document.getElementById('targetInput').addEventListener('input', (e) => {
+      const value = Number(e.target.value);
+      if (lineView && !Number.isNaN(value)) {
+        lineView.signal('targetADR', value).runAsync();
+      }
+    });
+  </script>
+</body>
+</html>
