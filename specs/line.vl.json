@@ -8,7 +8,10 @@
   },
   "width": 560,
   "height": 250,
-  "data": {"url": "data/adr_by_month.csv"},
+  "data": {
+    "url": "data/adr_by_month.csv"
+    "format": {"type": "csv", "parse": {"month_num": "number"}}
+  },
 
   "params": [
     {
